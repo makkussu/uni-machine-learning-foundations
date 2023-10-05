@@ -172,6 +172,10 @@ void calculate_best_move(Queen *queen, Queen *queens,
 		int size, long **board, Vector2 *vector, int current_heurestic) {
 
 	int smallest_attack = 999999;
+	int usedIndex = 0;
+
+	int positions[size];
+	memset(positions, -1, sizeof positions);
 
 	// Copying queen to alter the data.
 	Queen queen_copy;
@@ -200,12 +204,18 @@ void calculate_best_move(Queen *queen, Queen *queens,
 
 		attacked = calculate_attacked_queens(queen_copy, size, board_copy);
 		int temp_heurestic = calculate_collisions(queen_array_copy, size, board_copy);
-		if (attacked <= smallest_attack && temp_heurestic < current_heurestic) {
+		if (attacked <= smallest_attack && temp_heurestic <= current_heurestic) {
 			current_heurestic = temp_heurestic;
 			smallest_attack = attacked;
-			vector->y = i;
+			positions[usedIndex] = i;
+			usedIndex++;
 		}
 	}
+
+	// Choosing a random position if value is the same
+	// for multiple vectors
+	if (usedIndex > 0)
+		vector->y = get_random_index(positions, usedIndex);
 
 	free(board_copy);
 }
@@ -226,10 +236,10 @@ void hill_climbing(Queen *queens, int size, long **board) {
 	current_heurestic = calculate_collisions(queens, size, board);
 	iterations = total_iterations = 0;
 	while (true) {
-		if (total_iterations >= 100 || current_heurestic <= 1)
+		if (total_iterations >= 500 || current_heurestic < 1)
 			break;
 
-		if (iterations >= 5) {
+		if (iterations >= 50) {
 			rage_restart = true;
 			iterations = 0;
 		}
@@ -270,7 +280,7 @@ void hill_climbing(Queen *queens, int size, long **board) {
 		if (temp_heurestic >= current_heurestic) {
 			iterations++;
 			total_iterations++;
-			continue;
+			// continue;
 		}
 
 		// Update the main 2D array

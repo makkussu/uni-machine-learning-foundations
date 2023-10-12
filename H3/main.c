@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,8 @@ typedef struct entity {
 	int *moves;
 	int madeMoves;
 } Entity;
+
+FILE *f;
 
 // Generalized function to allocate memory when needed.
 int* initializeArray(int size) {
@@ -35,16 +38,27 @@ void copyEntity(Entity *entity1, Entity *entity2) {
 	entity2->moves = movesCopy;
 }
 
+// Shortcut for the command
+void writeToFile(char *data) {
+	fprintf(f, "%s", data);
+}
+
 // Printing board using traditional for-loops
 void printBoard(int *board) {
 	printf("|");
+	writeToFile("|");
 	for (int i = 0; i < BOARD_SIZE; i++) {
-		if (i % (WIDTH) == 0 && i != 0)
+		if (i % (WIDTH) == 0 && i != 0) {
 			printf("|\n|");
+			writeToFile("|\n|");
+		}
 		printf("%d", board[i]);
+		fprintf(f, "%d", board[i]);
 	}
 	printf("|\n|-------|\n");
+	writeToFile("|\n|-------|\n");
 	printf("|0123456|\n");
+	writeToFile("|0123456|\n");
 }
 
 void updateGame(int *board, Entity *entity, int col) {
@@ -268,6 +282,7 @@ int computerMovementCalculations(int *board, Entity *player, Entity *computer, i
 
 	possibleMoves(board, recommendedMoves, movesArraySize);
 
+	fprintf(f, "Column - Won - Lost - Rate\n");
 	for (int i = 0; i < *movesArraySize; i++) {
 		won = lost = 0;
 		
@@ -280,6 +295,9 @@ int computerMovementCalculations(int *board, Entity *player, Entity *computer, i
 		}
 
 		printf("Data: %d | %d | %d\n", i, won, lost);
+		int percentage = (int) round(((float) won / N_MOVES) * 100);
+		printf("Percentage: %d\n", percentage);
+		fprintf(f, "%d : %d : %d : %d%%\n", i, won, lost, percentage);
 
 		if (won >= prevWon) {
 			if (lost < prevLost) {
@@ -291,6 +309,7 @@ int computerMovementCalculations(int *board, Entity *player, Entity *computer, i
 	}
 
 	printf("best move: %d\n", bestMove);
+	fprintf(f, "Computer has chosen %d\n", bestMove);
 
 	return bestMove;
 }
@@ -317,19 +336,35 @@ void game(int *board) {
 	srand(time(0));
 
 	printf("Player = 1, Computer = 2\n");
+	printf("Number of simulations: %d\n", N_MOVES);
+	writeToFile("Player = 1, Computer = 2\n");
+	fprintf(f, "Number of simulations: %d\n", N_MOVES);
 
 	for (;;) {
+		if (gameOver(board)) {
+			printf("Game is over!\n");
+			fprintf(f, "----------\nGame is over!\n");
+			break;
+		}
 
+
+		writeToFile("-------\n");
 		// Player makes a move;
 		printBoard(board);
 
 		printf("Choose the column:");
 		scanf("%d", &chosenCol);
 
+		fprintf(f, "Player has chosen: %d\n", chosenCol);
+
 		updateGame(board, &player, chosenCol);
 		updateEntityData(&player);
 		won = hasWon(board, &player);
 		printf("Has player won? %d\n", won);
+		if (won) {
+			fprintf(f, "----------\nPlayer has won!\n");
+			break;
+		}
 
 		// Computer makes a move;
 		resetArray(computerRecommendedMoves, WIDTH);
@@ -340,7 +375,13 @@ void game(int *board) {
 		updateEntityData(&computer);
 		won = hasWon(board, &computer);
 		printf("Has computer won? %d\n", won);
+		if (won) {
+			fprintf(f, "----------\nComputer has won!\n");
+			break;
+		}
 	}
+
+	printBoard(board);
 
 	free(player.moves);
 	free(computer.moves);
@@ -348,6 +389,13 @@ void game(int *board) {
 }
 
 int main(int argc, char const *argv[]) {
+	// Opening up the file
+	f = fopen("data.txt", "w");
+	if (f == NULL) {
+		printf("Error opening the file!\n");
+		exit(1);
+	}
+
 	// Reserving memory for the array;
 	int *board;
 	board = initializeArray(BOARD_SIZE);
@@ -355,5 +403,6 @@ int main(int argc, char const *argv[]) {
 	game(board);
 	
 	free(board);
+	fclose(f);
 	return 0;
 }

@@ -40,10 +40,10 @@ Visualisation:
 
 Data extracted from the graph:
 
-* [f, f, f, nf]: ~0.065
-* [f, f, nf, f]: ~0.085
-* [f, nf, f, f]: ~0.070
-* [nf, f, f, f]: ~0.090
+* f, f, f, nf: ~0.065
+* f, f, nf, f: ~0.085
+* f, nf, f, f: ~0.070
+* nf, f, f, f: ~0.090
 
 Total probability: 0.065 + 0.085 + 0.070 + 0.090 = 0.31 <=> 31%
 
@@ -72,7 +72,7 @@ Visualisation:
 
 Data extracted from the graph:
 
-* [nf, f, f, f]: >0.70
+* nf, f, f, f: >0.70
 
 Total probability: >0.70 <=> >70%
 
@@ -102,6 +102,6 @@ Visualisation:
 
 Data extracted from the graph:
 
-* [nf, f, f, f]: >0.70
+* nf, f, f, f: >0.70
 
 Total probability: >0.70 <=> >70%

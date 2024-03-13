@@ -1,3 +1,4 @@
+# Machine Learning Foundations - TalTech Course
 ## Very simple repo structure explanation
 This repository structure is built the following way:
 * Each task has its own folder named H (homework) + task number
